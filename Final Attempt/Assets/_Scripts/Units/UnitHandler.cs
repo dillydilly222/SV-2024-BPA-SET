@@ -20,11 +20,6 @@ namespace LP.FDG.Units
         {
             instance = this;
         }
-        private void Start()
-        {
-            pUnitLayer = LayerMask.NameToLayer("PlayerUnits");
-            eUnitLayer = LayerMask.NameToLayer("EnemyUnits");
-        }
 
         public UnitStatTypes.Base GetBasicUnitStats(string type)
         {
@@ -45,36 +40,7 @@ namespace LP.FDG.Units
                     return null;
             }
             return unit.baseStats;
-        }
-
-        public void SetBasicUnitStats(Transform type)
-        {
-            Transform pUnits = PlayerManager.instance.playerUnits;
-            Transform eUnits = PlayerManager.instance.enemyUnits;
-            foreach (Transform child in type)
-            {
-                foreach (Transform unit in child)
-                {
-                    string unitName = child.name.Substring(0, child.name.Length - 1).ToLower();
-                    var stats = GetBasicUnitStats(unitName);
-
-                    if (type == pUnits)
-                    {
-                        Player.PlayerUnit pU = unit.GetComponent<Player.PlayerUnit>();
-                        pU.baseStats = GetBasicUnitStats(unitName);
-                    }
-                    else if (type == eUnits)
-                    {
-                        //set enemy stats
-                        Enemy.EnemyUnit eU = unit.GetComponent<Enemy.EnemyUnit>();
-                        eU.baseStats = GetBasicUnitStats(unitName);
-                    }
-
-                    //if we have any upgrades add them now
-                    //add upgrades to unit stats
-                }
-            }
-        }
+        } 
     }
 }
 
