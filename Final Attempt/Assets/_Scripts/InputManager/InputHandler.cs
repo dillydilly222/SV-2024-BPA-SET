@@ -13,6 +13,9 @@ namespace LP.FDG.InputManger
         private RaycastHit hit; //what we hit with our ray
 
         public List<Transform> selectedUnits = new List<Transform>();
+        public Transform selectedBuilding = null;
+
+        public LayerMask interactableLayer = new LayerMask();
 
         private bool isDragging = false;
 
@@ -22,10 +25,7 @@ namespace LP.FDG.InputManger
         {
             instance = this;
         }
-        private void Start()
-        {
-        }
-
+        
         private void OnGUI()
         {
             if (isDragging)
@@ -44,23 +44,21 @@ namespace LP.FDG.InputManger
                 //create a ray
                 Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
                 //check if we hit something
-                if (Physics.Raycast(ray, out hit))
+                if (Physics.Raycast(ray, out hit, 100, interactableLayer))
                 {
-                    // if we do, then do something with that data
-                    LayerMask layerHit = hit.transform.gameObject.layer;
-
-                    switch (layerHit.value)
+                   if(addedUnit(hit.transform))
                     {
-                        case 8: //Units Layer
-                                //do something
-                            SelecteUnit(hit.transform, Input.GetKey(KeyCode.LeftShift));
-                            break;
-                        default: //if none of the above happens
-                                 //do something
-                            isDragging = true;
-                            DeselectUnits();
-                            break;
+                        // be able to do stuff with units
                     }
+                   else if (addedBuilding(hit.transform))
+                    {
+                        // be able to do stuff with building    
+                    }
+                }
+                else
+                {
+                    isDragging = true;
+                    DeselectUnits();
                 }
             }
 
@@ -154,6 +152,45 @@ namespace LP.FDG.InputManger
             else
             {
                 return false;
+            }
+        }
+
+        private Interactables.IUnit addedUnit(Transform tf, bool canMultiSelect = false)
+        {
+            Interactables.IUnit iUnit = tf.GetComponent<Interactables.IUnit>();
+            if (iUnit)
+            {
+                if (!canMultiSelect)
+                {
+                    DeselectUnits();
+                }
+
+                selectedUnits.Add(iUnit.gameObject.transform);
+
+                iUnit.OnInteractEnter();
+
+                return iUnit;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        private Interactables.IBuilding addedBuilding(Transform tf)
+        {
+            Interactables.IBuilding iBuilding = tf.GetComponent<Interactables.IBuilding>();   
+            if (iBuilding)
+            {
+                selectedBuilding = iBuilding.gameObject.transform;
+
+                iBuilding.OnInteractEnter();
+
+                return iBuilding;
+            }
+            else
+            {
+                return null;
             }
         }
     }
